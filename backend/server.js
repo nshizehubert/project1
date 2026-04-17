@@ -59,9 +59,9 @@ app.post("/login", (req, res) => {
   });
 });
 
-// --- 🟢 CRUD ROUTES ---
+// --- 🟢 CRUD & PROFILE ROUTES ---
 
-// READ - Get all users
+// READ ALL - Get all users (for Dashboard)
 app.get("/users", (req, res) => {
   const sql = "SELECT id, username, email FROM users";
   db.query(sql, (err, results) => {
@@ -70,7 +70,18 @@ app.get("/users", (req, res) => {
   });
 });
 
-// UPDATE - Change user details
+// READ ONE - Get single user (for Profile)
+app.get("/users/:id", (req, res) => {
+  const { id } = req.params;
+  const sql = "SELECT id, username, email FROM users WHERE id = ?";
+  db.query(sql, [id], (err, result) => {
+    if (err) return res.status(500).json(err);
+    if (result.length === 0) return res.status(404).json({ message: "User not found" });
+    res.json(result[0]); 
+  });
+});
+
+// UPDATE - Change user details (for Dashboard)
 app.put("/users/:id", (req, res) => {
   const { id } = req.params;
   const { username, email } = req.body;
@@ -79,6 +90,22 @@ app.put("/users/:id", (req, res) => {
     if (err) return res.status(500).json(err);
     res.json({ message: "User updated successfully" });
   });
+});
+
+// UPDATE PASSWORD - (for Settings)
+app.put("/users/:id/password", async (req, res) => {
+  const { id } = req.params;
+  const { newPassword } = req.body;
+  try {
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    const sql = "UPDATE users SET password = ? WHERE id = ?";
+    db.query(sql, [hashedPassword, id], (err, result) => {
+      if (err) return res.status(500).json(err);
+      res.json({ message: "Password updated successfully" });
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Server error updating password" });
+  }
 });
 
 // DELETE - Remove a user

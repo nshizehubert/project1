@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom"; // Import useNavigate for redirection
 import "./Login.css";
 
 function Login() {
@@ -7,6 +8,8 @@ function Login() {
     email: "",
     password: ""
   });
+
+  const navigate = useNavigate(); // Initialize navigate
 
   const handleChange = (e) => {
     setFormData({
@@ -27,14 +30,20 @@ function Login() {
       const data = await res.json();
       
       if (res.ok) {
+        // ✅ 1. Store user info in localStorage
+        localStorage.setItem("userId", data.user.id);
+        localStorage.setItem("username", data.user.username);
+        
         alert("Login Successful!");
-        console.log("User data:", data.user);
+        
+        // ✅ 2. Redirect to Dashboard
+        navigate("/dashboard");
       } else {
         alert("Error: " + data.message);
       }
     } catch (error) {
       console.error("Connection error:", error);
-      alert("Could not connect to the server. Is your backend running?");
+      alert("Could not connect to the server.");
     }
   };
 
@@ -44,11 +53,15 @@ function Login() {
         <h2>Welcome Back 👋</h2>
         <p className="subtitle">Login to your account</p>
 
-        <input type="text" name="username" placeholder="Username" onChange={handleChange} required />
+        {/* Note: Your server only checks email/password for login, 
+            so 'username' here is optional unless you want it for display */}
         <input type="email" name="email" placeholder="Email" onChange={handleChange} required />
         <input type="password" name="password" placeholder="Password" onChange={handleChange} required />
 
         <button type="submit">Login</button>
+        <p style={{ marginTop: "10px", fontSize: "0.9rem" }}>
+          Don't have an account? <span style={{ color: "blue", cursor: "pointer" }} onClick={() => navigate("/register")}>Register</span>
+        </p>
       </form>
     </div>
   );

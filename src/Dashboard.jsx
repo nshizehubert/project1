@@ -1,4 +1,24 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom"; // Import Link for navigation
+
+// 1. Navbar Component (Can be in this file or its own)
+function Navbar() {
+  return (
+    <nav style={{ 
+      background: "#0d279e", 
+      padding: "10px", 
+      marginBottom: "20px", 
+      borderRadius: "5px",
+      display: "flex",
+      gap: "15px" 
+    }}>
+      <Link to="/dashboard" style={{ color: "white", textDecoration: "none" }}>🏠 Home</Link>
+      <Link to="/profile" style={{ color: "white", textDecoration: "none" }}>👤 My Profile</Link>
+      <Link to="/settings" style={{ color: "white", textDecoration: "none" }}>⚙️ Settings</Link>
+      <Link to="/login" style={{ color: "#1fe99b", textDecoration: "none", marginLeft: "auto" }}>Logout</Link>
+    </nav>
+  );
+}
 
 function Dashboard() {
   const [users, setUsers] = useState([]);
@@ -19,7 +39,7 @@ function Dashboard() {
     if (!confirm("Delete this user?")) return;
     try {
       await fetch(`http://localhost:5000/users/${id}`, { method: "DELETE" });
-      fetchUsers(); // Refresh list
+      fetchUsers();
     } catch (err) { 
       console.error("Delete error:", err); 
       alert("Delete failed");
@@ -34,7 +54,7 @@ function Dashboard() {
         body: JSON.stringify(editForm)
       });
       setEditingId(null);
-      fetchUsers(); // Refresh
+      fetchUsers();
     } catch (err) { 
       console.error("Update error:", err); 
       alert("Update failed");
@@ -50,11 +70,14 @@ function Dashboard() {
 
   return (
     <div style={{ padding: "20px", maxWidth: "800px", margin: "0 auto" }}>
-      <h1>🗄️ User CRUD Dashboard</h1>
-      <p><em>Register users first, then manage here (backend must run on :5000)</em></p>
+      {/* 2. Insert Navbar at the top */}
+      <Navbar />
+
+      <h1>🗄️ User hubert Dashboard</h1>
+      <p><em>Manage your users databases</em></p>
       
       {users.length === 0 ? (
-        <p>No users. Register some via /register!</p>
+        <p>No users found. <Link to="/register">Register someone!</Link></p>
       ) : (
         <ul style={{ listStyle: "none", padding: 0 }}>
           {users.map(user => (
@@ -72,26 +95,24 @@ function Dashboard() {
                   <input 
                     value={editForm.username} 
                     onChange={(e) => setEditForm({...editForm, username: e.target.value})}
-                    placeholder="Username" 
                     style={{ marginRight: "10px" }}
                   />
                   <input 
                     value={editForm.email} 
                     onChange={(e) => setEditForm({...editForm, email: e.target.value})}
-                    placeholder="Email" 
                     style={{ marginRight: "10px" }}
                   />
-                  <button onClick={() => updateUser(user.id)} style={{ marginRight: "10px" }}>✅ Save</button>
+                  <button onClick={() => updateUser(user.id)}>✅ Save</button>
                   <button onClick={() => setEditingId(null)}>❌ Cancel</button>
                 </div>
               ) : (
                 <div style={{ flex: 1 }}>
-                  <strong>{user.username}</strong> - {user.email}
+                  <strong>{user.username}</strong> — {user.email}
                 </div>
               )}
               <div>
                 <button onClick={() => startEdit(user)} style={{ marginRight: "10px" }}>✏️ Edit</button>
-                <button onClick={() => deleteUser(user.id)}>🗑️ Delete</button>
+                <button onClick={() => deleteUser(user.id)} style={{ color: "red" }}>🗑️ Delete</button>
               </div>
             </li>
           ))}
@@ -102,4 +123,3 @@ function Dashboard() {
 }
 
 export default Dashboard;
-
