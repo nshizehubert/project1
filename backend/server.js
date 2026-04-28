@@ -23,8 +23,6 @@ db.connect((err) => {
   }
 });
 
-// --- 📝 AUTH ROUTES ---
-
 // REGISTER
 app.post("/register", async (req, res) => {
   const { username, email, password } = req.body;
@@ -59,7 +57,7 @@ app.post("/login", (req, res) => {
   });
 });
 
-// --- 🟢 CRUD & PROFILE ROUTES ---
+//  CRUD & PROFILE ROUTES 
 
 // READ ALL - Get all users (for Dashboard)
 app.get("/users", (req, res) => {
